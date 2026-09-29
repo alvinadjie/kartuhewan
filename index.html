@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Flashcard Hewan</title>
+<style>
+html,body{margin:0;height:100%;background:linear-gradient(160deg,#0f9b8e,#3ec6a5,#a8e063);color:#fff;font-family:sans-serif;overflow:hidden;user-select:none;-webkit-user-select:none}
+#app{display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%;padding:16px;box-sizing:border-box}
+#top{width:100%;max-width:420px;display:flex;justify-content:space-between;align-items:center;font-weight:bold;text-shadow:0 1px 3px #0006}
+#dots{display:flex;gap:5px;flex-wrap:wrap;max-width:220px}
+.dot{width:8px;height:8px;border-radius:50%;background:#ffffff55}
+.dot.on{background:#ffd93d}
+#stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%}
+#card{background:#ffffff22;border:3px solid #ffffff55;border-radius:28px;width:min(78vw,320px);aspect-ratio:1;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 0 #00000022;cursor:pointer}
+#card:active{transform:scale(.96)}
+#emo{font-size:min(34vw,150px);display:inline-block;animation:float 2.4s ease-in-out infinite}
+#emo.wiggle{animation:wiggle .6s ease}
+#hint{font-size:13px;opacity:.85;margin-top:6px;text-shadow:0 1px 2px #0006}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-10px) rotate(2deg)}}
+@keyframes wiggle{0%{transform:scale(1) rotate(0)}20%{transform:scale(1.25) rotate(-12deg)}40%{transform:scale(1.15) rotate(10deg)}60%{transform:scale(1.25) rotate(-8deg)}80%{transform:scale(1.1) rotate(5deg)}100%{transform:scale(1) rotate(0)}}
+#labels{min-height:70px;display:flex;flex-direction:column;gap:6px;align-items:center;justify-content:center;margin-top:16px}
+.lbl{font-size:26px;font-weight:bold;padding:4px 18px;border-radius:14px;opacity:0;transform:translateY(8px) scale(.8);transition:.35s}
+.lbl.show{opacity:1;transform:translateY(0) scale(1)}
+.lbl.id{background:#ffffff33}
+.lbl.en{background:#00000022}
+#btns{display:flex;gap:10px;width:100%;max-width:420px;justify-content:center;flex-wrap:wrap;margin:16px 0}
+.bt{flex:1;min-width:100px;font-size:16px;font-weight:bold;padding:14px 8px;border:0;border-radius:16px;color:#0f9b8e;background:#fff;box-shadow:0 4px 0 #00000033;transition:transform .1s}
+.bt:active{transform:translateY(3px);box-shadow:0 1px 0 #00000033}
+.bt.sound{color:#fff;background:#ff6b6b;box-shadow:0 4px 0 #b33d3d}
+#nav{display:flex;gap:16px;align-items:center}
+#nav button{font-size:20px;padding:10px 20px;border:0;border-radius:50%;background:#ffffff33;color:#fff;width:52px;height:52px}
+#nav button:active{background:#ffffff55}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="top"><span id="cnt">1 / 12</span><div id="dots"></div></div>
+  <div id="stage">
+    <div id="card"><span id="emo">🐱</span></div>
+    <div id="hint">👆 Tap gambar untuk dengar suaranya</div>
+    <div id="labels">
+      <div class="lbl id" id="lblId"></div>
+      <div class="lbl en" id="lblEn"></div>
+    </div>
+  </div>
+  <div id="btns">
+    <button class="bt" id="bId">🇮🇩 Indonesia</button>
+    <button class="bt" id="bEn">🇬🇧 English</button>
+  </div>
+  <div id="nav">
+    <button id="prev">◀</button>
+    <button id="next">▶</button>
+  </div>
+</div>
+<script>
+const ANIMALS=[
+ {id:'Kucing',en:'Cat',emo:'🐱',snd:'meow'},
+ {id:'Anjing',en:'Dog',emo:'🐶',snd:'woof'},
+ {id:'Sapi',en:'Cow',emo:'🐮',snd:'moo'},
+ {id:'Ayam',en:'Chicken',emo:'🐔',snd:'cluck'},
+ {id:'Bebek',en:'Duck',emo:'🦆',snd:'quack'},
+ {id:'Kambing',en:'Goat',emo:'🐐',snd:'bleat'},
+ {id:'Kuda',en:'Horse',emo:'🐴',snd:'neigh'},
+ {id:'Singa',en:'Lion',emo:'🦁',snd:'roar'},
+ {id:'Gajah',en:'Elephant',emo:'🐘',snd:'trumpet'},
+ {id:'Katak',en:'Frog',emo:'🐸',snd:'croak'},
+ {id:'Domba',en:'Sheep',emo:'🐑',snd:'baa'},
+ {id:'Babi',en:'Pig',emo:'🐷',snd:'oink'}
+];
+let idx=0;
+const $=q=>document.getElementById(q);
+const emo=$('emo'),lblId=$('lblId'),lblEn=$('lblEn'),cnt=$('cnt'),dots=$('dots');
+
+dots.innerHTML=ANIMALS.map((_,i)=>`<span class="dot" id="d${i}"></span>`).join('');
+
+function show(){
+  const a=ANIMALS[idx];
+  emo.textContent=a.emo;
+  lblId.textContent='🇮🇩 '+a.id; lblId.className='lbl id';
+  lblEn.textContent='🇬🇧 '+a.en; lblEn.className='lbl en';
+  cnt.textContent=(idx+1)+' / '+ANIMALS.length;
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('on',i===idx));
+}
+function bump(){emo.classList.remove('wiggle');void emo.offsetWidth;emo.classList.add('wiggle')}
+
+$('prev').onclick=()=>{idx=(idx-1+ANIMALS.length)%ANIMALS.length;show()};
+$('next').onclick=()=>{idx=(idx+1)%ANIMALS.length;show()};
+
+/* tap gambar = suara hewan, geser = pindah kartu */
+let sx=null,sy=null,moved=false;
+$('card').addEventListener('pointerdown',e=>{sx=e.clientX;sy=e.clientY;moved=false});
+$('card').addEventListener('pointermove',e=>{
+  if(sx===null)return;
+  if(Math.abs(e.clientX-sx)>10||Math.abs(e.clientY-sy)>10)moved=true;
+});
+$('card').addEventListener('pointerup',e=>{
+  if(sx===null)return;const dx=e.clientX-sx;sx=null;
+  if(moved){ if(dx<-40)$('next').click(); else if(dx>40)$('prev').click(); }
+  else playAnimalSound();
+});
+
+/* ---------- suara & bicara ---------- */
+let ac;
+function ctx(){
+  if(!ac)ac=new (window.AudioContext||window.webkitAudioContext)();
+  if(ac.state==='suspended')ac.resume();
+  return ac;
+}
+document.addEventListener('pointerdown',()=>{try{ctx()}catch(e){}},{once:true});
+function tone(f,d,type='sine',at=0,v=.2,slideTo=null){
+  const t=ctx().currentTime+at,o=ctx().createOscillator(),g=ctx().createGain();
+  o.type=type;o.frequency.setValueAtTime(f,t);
+  if(slideTo)o.frequency.exponentialRampToValueAtTime(slideTo,t+d);
+  g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);
+  o.connect(g);g.connect(ctx().destination);o.start(t);o.stop(t+d+.02);
+}
+function noise(d,at=0,v=.25,filterFreq=800){
+  const t=ctx().currentTime+at,buf=ctx().createBuffer(1,ctx().sampleRate*d,ctx().sampleRate),data=buf.getChannelData(0);
+  for(let i=0;i<data.length;i++)data[i]=Math.random()*2-1;
+  const src=ctx().createBufferSource();src.buffer=buf;
+  const f=ctx().createBiquadFilter();f.type='bandpass';f.frequency.value=filterFreq;
+  const g=ctx().createGain();g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);
+  src.connect(f);f.connect(g);g.connect(ctx().destination);src.start(t);src.stop(t+d);
+}
+function vib(f,depth,rate,d,type='sine',v=.2,at=0){
+  const t=ctx().currentTime+at,o=ctx().createOscillator(),lfo=ctx().createOscillator(),lg=ctx().createGain(),g=ctx().createGain();
+  o.type=type;o.frequency.value=f;lfo.frequency.value=rate;lg.gain.value=depth;
+  lfo.connect(lg);lg.connect(o.frequency);
+  g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);
+  o.connect(g);g.connect(ctx().destination);
+  lfo.start(t);o.start(t);lfo.stop(t+d+.02);o.stop(t+d+.02);
+}
+const SOUNDS={
+  meow:()=>{tone(420,.13,'sawtooth',0,.16,780);tone(780,.2,'sawtooth',.11,.13,320)},
+  woof:()=>{noise(.08,0,.4,250);tone(150,.1,'square',0,.25,90);noise(.08,.2,.4,250);tone(160,.1,'square',.2,.25,90)},
+  moo:()=>{vib(140,16,4,.9,'sawtooth',.22)},
+  cluck:()=>{tone(650,.07,'square',0,.15,900);tone(600,.07,'square',.11,.15,850);tone(700,.07,'square',.22,.15,950)},
+  quack:()=>{vib(450,130,18,.25,'square',.2)},
+  bleat:()=>{vib(380,55,9,.4,'sawtooth',.18)},
+  neigh:()=>{tone(250,.15,'sawtooth',0,.2,650);vib(650,50,14,.35,'sawtooth',.15,.15)},
+  roar:()=>{noise(.7,0,.4,180);tone(80,.7,'sawtooth',0,.2,60)},
+  trumpet:()=>{tone(250,.15,'square',0,.25,950);tone(950,.35,'square',.15,.2,500)},
+  croak:()=>{tone(140,.12,'square',0,.22,90);tone(140,.12,'square',.2,.22,90)},
+  baa:()=>{vib(420,70,6,.45,'sawtooth',.18)},
+  oink:()=>{noise(.06,0,.3,400);tone(180,.08,'sawtooth',0,.2,110);noise(.06,.14,.3,400);tone(170,.08,'sawtooth',.14,.2,100)}
+};
+function speak(text,lang){
+  if(!('speechSynthesis' in window))return;
+  const u=new SpeechSynthesisUtterance(text);u.lang=lang;u.rate=.9;
+  speechSynthesis.cancel();speechSynthesis.speak(u);
+}
+function click(){tone(700,.06,'sine',0,.12,900)}
+function playAnimalSound(){
+  const a=ANIMALS[idx];bump();navigator.vibrate&&navigator.vibrate(40);
+  const audio=new Audio('sounds/'+a.snd+'.mp3');
+  audio.onerror=()=>(SOUNDS[a.snd]||(()=>{}))(); // file belum ada -> pakai suara sintesis
+  audio.play().catch(()=>(SOUNDS[a.snd]||(()=>{}))());
+}
+$('bId').onclick=()=>{const a=ANIMALS[idx];lblId.classList.add('show');click();speak(a.id,'id-ID');bump()};
+$('bEn').onclick=()=>{const a=ANIMALS[idx];lblEn.classList.add('show');click();speak(a.en,'en-US');bump()};
+
+show();
+</script>
+</body>
+</html>
