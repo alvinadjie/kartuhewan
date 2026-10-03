@@ -1,4 +1,4 @@
-const CACHE = 'flashcard-hewan-v1';
+const CACHE = 'flashcard-pintar-v2';
 const ASSETS = [
   './index.html',
   './manifest.json',

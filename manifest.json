@@ -1,13 +1,13 @@
 {
-  "name": "Flashcard Hewan",
-  "short_name": "Hewan",
-  "description": "Flashcard hewan bahasa Indonesia & Inggris dengan suara asli",
+  "name": "Kartu Belajar Pintar",
+  "short_name": "Kartu Belajar",
+  "description": "Flashcard edukasi anak: Hewan, Buah-buahan, Sayur, Warna, Peralatan Dapur, Peralatan Sekolah, dan Anggota Tubuh",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0f9b8e",
-  "theme_color": "#0f9b8e",
+  "background_color": "#1e3c72",
+  "theme_color": "#1e3c72",
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
